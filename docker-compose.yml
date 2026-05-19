@@ -1,0 +1,56 @@
+services:
+  # The PostgreSQL Database Service
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - food-butler-net
+    ports:
+      - "5432:5432"
+
+  # The Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      # THIS IS THE CRITICAL FIX
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - db
+    networks:
+      - food-butler-net
+    ports:
+      - "8000:8000"
+
+  # The AI Agent Service
+  agent:
+    build:
+      context: ./ai_agent
+      dockerfile: Dockerfile.orchestrator
+    volumes:
+      - ./ai_agent:/app
+    environment:
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - BACKEND_API_URL=http://backend:8000
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - backend
+    networks:
+      - food-butler-net
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+
+networks:
+  food-butler-net:

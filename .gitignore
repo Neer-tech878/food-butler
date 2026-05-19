@@ -1,0 +1,35 @@
+.venv/
+.env
+*.pyc
+__pycache__/
+.Python
+env/
+build/
+dist/
+.eggs/
+*.egg-info/
+.installed.cfg
+.pytest_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+.DS_Store
+.vscode/
+logs/
+*.log
+*.sqlite3
+postgres_data/
+*.pem
+
+# Docker
+docker-compose.override.yml
+
+# Node
+node_modules/
+
+# IDE
+.idea/
+
+# Mac
+*.DS_Store

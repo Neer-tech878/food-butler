@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>Connection Test</title></head>
+<body>
+<h1>Backend Connection Test</h1>
+<button onclick="testConnection()">Test Connection</button>
+<pre id="output"></pre>
+<script>
+async function testConnection() {
+    const output = document.getElementById('output');
+    output.textContent = 'Testing...\n';
+    
+    try {
+        output.textContent += 'Fetching http://localhost:8000/token\n';
+        const response = await fetch('http://localhost:8000/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: 'admin@foodbutler.com', password: 'admin123' })
+        });
+        
+        output.textContent += `Status: ${response.status}\n`;
+        const data = await response.json();
+        output.textContent += `Response: ${JSON.stringify(data, null, 2)}\n`;
+        
+        if (data.access_token) {
+            output.textContent += '\n✅ SUCCESS! Backend is working!\n';
+        }
+    } catch (error) {
+        output.textContent += `\n❌ ERROR: ${error.message}\n`;
+        output.textContent += `Error type: ${error.constructor.name}\n`;
+        output.textContent += `\nPossible causes:\n`;
+        output.textContent += `- Backend not running on port 8000\n`;
+        output.textContent += `- CORS not configured for this port\n`;
+        output.textContent += `- Browser blocking the request\n`;
+    }
+}
+</script>
+</body>
+</html>

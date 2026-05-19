@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Food Butler Services</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #667eea; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #5568d3; }
+        .result { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>🍔 Food Butler Service Tester</h1>
+    
+    <h2>1. Test Backend</h2>
+    <button onclick="testBackend()">Test Backend API</button>
+    <div id="backend-result" class="result"></div>
+    
+    <h2>2. Test Login</h2>
+    <button onclick="testLogin()">Test Login</button>
+    <div id="login-result" class="result"></div>
+    
+    <h2>3. Test AI Chat</h2>
+    <button onclick="testAIChat()">Test AI Chat (requires login first)</button>
+    <div id="chat-result" class="result"></div>
+    
+    <h2>4. Clear Storage</h2>
+    <button onclick="clearStorage()">Clear LocalStorage</button>
+    
+    <script>
+        let token = localStorage.getItem('foodButlerToken');
+        
+        async function testBackend() {
+            const result = document.getElementById('backend-result');
+            result.textContent = 'Testing...';
+            
+            try {
+                const res = await fetch('http://localhost:8000/');
+                const data = await res.json();
+                result.className = 'result success';
+                result.innerHTML = `<strong>✓ Backend is working!</strong><br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `<strong>✗ Backend error:</strong><br>${err.message}`;
+            }
+        }
+        
+        async function testLogin() {
+            const result = document.getElementById('login-result');
+            result.textContent = 'Logging in...';
+            
+            try {
+                const res = await fetch('http://localhost:8000/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'admin@foodbutler.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    token = data.access_token;
+                    localStorage.setItem('foodButlerToken', token);
+                    result.className = 'result success';
+                    result.innerHTML = `<strong>✓ Login successful!</strong><br>Token: ${token.substring(0, 50)}...`;
+                } else {
+                    const error = await res.json();
+                    result.className = 'result error';
+                    result.innerHTML = `<strong>✗ Login failed:</strong><br><pre>${JSON.stringify(error, null, 2)}</pre>`;
+                }
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `<strong>✗ Login error:</strong><br>${err.message}`;
+            }
+        }
+        
+        async function testAIChat() {
+            const result = document.getElementById('chat-result');
+            
+            if (!token) {
+                result.className = 'result error';
+                result.textContent = '✗ Please login first!';
+                return;
+            }
+            
+            result.textContent = 'Sending message to AI...';
+            
+            try {
+                const res = await fetch('http://localhost:8080/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_input: 'Hello! What restaurants do you have?',
+                        session_id: `test_${Date.now()}`
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    result.className = 'result success';
+                    result.innerHTML = `<strong>✓ AI Chat is working!</strong><br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    const error = await res.json();
+                    result.className = 'result error';
+                    result.innerHTML = `<strong>✗ AI Chat failed:</strong><br><pre>${JSON.stringify(error, null, 2)}</pre>`;
+                }
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `<strong>✗ AI Chat error:</strong><br>${err.message}<br><br>Make sure the AI Agent is running on port 8080`;
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            token = null;
+            alert('LocalStorage cleared!');
+        }
+    </script>
+</body>
+</html>

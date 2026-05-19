@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Butler - Restaurant Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6a88 0%, #ff2e63 100%);
+            --dark: #1a1a2e;
+            --accent: #667eea;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --bg-light: #f7fafc;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Login Container */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 50px;
+            width: 100%;
+            max-width: 480px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            padding: 30px;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .dashboard-title p {
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            background: var(--danger-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(255, 106, 136, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card h3 {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        thead tr th {
+            text-align: left;
+            padding: 16px 20px;
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+
+        thead tr th:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        thead tr th:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        tbody tr {
+            background: white;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        td {
+            padding: 20px;
+            border: none;
+            font-size: 0.95em;
+        }
+
+        tbody tr td:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        tbody tr td:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .btn-edit {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--danger-gradient);
+            color: white;
+        }
+
+        .btn-edit:hover, .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .order-status.pending_payment {
+            background: var(--warning-gradient);
+        }
+
+        .order-status.confirmed,
+        .order-status.completed {
+            background: var(--success-gradient);
+        }
+
+        .order-status.preparing {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .order-status.cancelled {
+            background: var(--danger-gradient);
+        }
+
+        .availability-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .availability-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--success-gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div id="login-container" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🍽️ Food Butler</h1>
+                <p>Restaurant Admin Dashboard</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-primary">Login to Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboard-container" class="dashboard-container hidden">
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h1 id="restaurant-name">Restaurant Dashboard</h1>
+                <p id="restaurant-email">Loading...</p>
+            </div>
+            <button id="logout-btn" class="btn-logout">Logout</button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <div class="stat-value" id="stat-orders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Menu Items</h3>
+                <div class="stat-value" id="stat-menu-items">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Available Items</h3>
+                <div class="stat-value" id="stat-available-items">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="stat-value" id="stat-revenue">₹0</div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="content-section">
+            <h2 class="section-title">📦 Your Orders</h2>
+            <table id="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Orders will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Menu Items Section -->
+        <div class="content-section">
+            <h2 class="section-title">🍔 Your Menu Items</h2>
+            <table id="menu-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Available</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Menu items will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8000';
+        let adminToken = localStorage.getItem('restaurantAdminToken');
+        let restaurantData = null;
+
+        const loginContainer = document.getElementById('login-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('login-form');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Check if already logged in
+        if (adminToken) {
+            loadDashboard();
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/restaurant-admin/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: email, password: password })
+                });
+
+                if (!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.detail || 'Login failed');
+                }
+
+                const data = await res.json();
+                adminToken = data.access_token;
+                localStorage.setItem('restaurantAdminToken', adminToken);
+                
+                await loadDashboard();
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed: ' + error.message);
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('restaurantAdminToken');
+            adminToken = null;
+            dashboardContainer.classList.add('hidden');
+            loginContainer.classList.remove('hidden');
+            location.reload();
+        });
+
+        async function loadDashboard() {
+            try {
+                // Decode token to get restaurant ID
+                const tokenParts = adminToken.split('.');
+                const payload = JSON.parse(atob(tokenParts[1]));
+                const restaurantId = payload.restaurant_id;
+                
+                // Fetch restaurant details
+                const restaurantRes = await fetch(`${BACKEND_URL}/restaurants/${restaurantId}`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (!restaurantRes.ok) throw new Error('Failed to load restaurant data');
+                
+                restaurantData = await restaurantRes.json();
+                
+                // Update UI
+                document.getElementById('restaurant-name').textContent = restaurantData.name;
+                document.getElementById('restaurant-email').textContent = restaurantData.restaurant_admin_email;
+                
+                // Load dashboard data
+                await Promise.all([
+                    loadOrders(restaurantId),
+                    loadMenuItems(restaurantId)
+                ]);
+                
+                loginContainer.classList.add('hidden');
+                dashboardContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+                alert('Failed to load dashboard. Please login again.');
+                localStorage.removeItem('restaurantAdminToken');
+                location.reload();
+            }
+        }
+
+        async function loadOrders(restaurantId) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/admin/orders`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (!res.ok) throw new Error('Failed to load orders');
+                
+                const allOrders = await res.json();
+                
+                // Filter orders that contain items from this restaurant
+                const restaurantOrders = allOrders.filter(order =>
+                    order.items && order.items.some(item =>
+                        item.menu_item && item.menu_item.restaurant_id === restaurantId
+                    )
+                );
+                
+                // Update stats
+                document.getElementById('stat-orders').textContent = restaurantOrders.length;
+                
+                const totalRevenue = restaurantOrders.reduce((sum, order) => {
+                    // Calculate revenue only for items from this restaurant
+                    const restaurantItems = order.items.filter(item => 
+                        item.menu_item && item.menu_item.restaurant_id === restaurantId
+                    );
+                    const orderRevenue = restaurantItems.reduce((itemSum, item) => 
+                        itemSum + (parseFloat(item.price_at_time_of_order) * item.quantity), 0
+                    );
+                    return sum + orderRevenue;
+                }, 0);
+                
+                document.getElementById('stat-revenue').textContent = `₹${totalRevenue.toFixed(2)}`;
+                
+                // Populate orders table
+                const tbody = document.querySelector('#orders-table tbody');
+                tbody.innerHTML = restaurantOrders.map(order => {
+                    const restaurantItems = order.items.filter(item => 
+                        item.menu_item && item.menu_item.restaurant_id === restaurantId
+                    );
+                    const itemsList = restaurantItems.map(item => 
+                        `${item.menu_item.name} (x${item.quantity})`
+                    ).join(', ');
+                    
+                    const orderTotal = restaurantItems.reduce((sum, item) => 
+                        sum + (parseFloat(item.price_at_time_of_order) * item.quantity), 0
+                    );
+                    
+                    return `
+                        <tr>
+                            <td><strong>#${order.id.substring(0, 8)}</strong></td>
+                            <td>${order.customer_email || 'N/A'}</td>
+                            <td>${itemsList}</td>
+                            <td><strong>₹${orderTotal.toFixed(2)}</strong></td>
+                            <td><span class="order-status ${order.status}">${order.status}</span></td>
+                            <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        async function loadMenuItems(restaurantId) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/restaurants/${restaurantId}/menu`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (!res.ok) throw new Error('Failed to load menu items');
+                
+                const menuItems = await res.json();
+                
+                // Update stats
+                document.getElementById('stat-menu-items').textContent = menuItems.length;
+                const availableCount = menuItems.filter(item => item.is_available).length;
+                document.getElementById('stat-available-items').textContent = availableCount;
+                
+                // Populate menu table
+                const tbody = document.querySelector('#menu-table tbody');
+                tbody.innerHTML = menuItems.map(item => `
+                    <tr>
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.description || 'N/A'}</td>
+                        <td><strong>₹${item.price}</strong></td>
+                        <td>
+                            <label class="availability-toggle">
+                                <input type="checkbox" ${item.is_available ? 'checked' : ''} 
+                                       onchange="toggleAvailability('${item.id}', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td>${item.inventory ? item.inventory.quantity : 'N/A'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading menu items:', error);
+            }
+        }
+
+        async function toggleAvailability(itemId, isAvailable) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/admin/menu-items/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_available: isAvailable })
+                });
+                
+                if (!res.ok) throw new Error('Failed to update availability');
+                
+                alert('Menu item availability updated!');
+            } catch (error) {
+                console.error('Error updating availability:', error);
+                alert('Failed to update availability');
+                // Reload to reset the toggle
+                loadMenuItems(restaurantData.id);
+            }
+        }
+    </script>
+</body>
+</html>

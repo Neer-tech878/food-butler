@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend API</title>
+</head>
+<body>
+    <h1>Testing Food Butler API</h1>
+    <div id="results"></div>
+    
+    <script>
+        const BACKEND_URL = 'http://localhost:8000';
+        const results = document.getElementById('results');
+        
+        async function test() {
+            try {
+                // Test 1: Login
+                results.innerHTML += '<h2>1. Testing Login...</h2>';
+                const loginRes = await fetch(`${BACKEND_URL}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin@foodbutler.com', password: 'admin123' })
+                });
+                
+                if (!loginRes.ok) {
+                    results.innerHTML += `<p style="color: red;">Login failed: ${loginRes.status}</p>`;
+                    return;
+                }
+                
+                const loginData = await loginRes.json();
+                results.innerHTML += `<p style="color: green;">✅ Login successful! Token: ${loginData.access_token.substring(0, 20)}...</p>`;
+                
+                // Test 2: Get Restaurants
+                results.innerHTML += '<h2>2. Testing Get Restaurants...</h2>';
+                const restaurantsRes = await fetch(`${BACKEND_URL}/restaurants/`, {
+                    headers: { 'Authorization': `Bearer ${loginData.access_token}` }
+                });
+                
+                if (!restaurantsRes.ok) {
+                    results.innerHTML += `<p style="color: red;">Get restaurants failed: ${restaurantsRes.status}</p>`;
+                    return;
+                }
+                
+                const restaurants = await restaurantsRes.json();
+                results.innerHTML += `<p style="color: green;">✅ Found ${restaurants.length} restaurants:</p>`;
+                restaurants.forEach(r => {
+                    results.innerHTML += `<p>  - ${r.name} (${r.cuisine})</p>`;
+                });
+                
+                // Test 3: Get Menu for first restaurant
+                if (restaurants.length > 0) {
+                    const restaurantId = restaurants[0].id;
+                    results.innerHTML += `<h2>3. Testing Get Menu for ${restaurants[0].name}...</h2>`;
+                    const menuRes = await fetch(`${BACKEND_URL}/restaurants/${restaurantId}/menu`, {
+                        headers: { 'Authorization': `Bearer ${loginData.access_token}` }
+                    });
+                    
+                    if (!menuRes.ok) {
+                        results.innerHTML += `<p style="color: red;">Get menu failed: ${menuRes.status}</p>`;
+                        return;
+                    }
+                    
+                    const menu = await menuRes.json();
+                    results.innerHTML += `<p style="color: green;">✅ Found ${menu.length} menu items:</p>`;
+                    menu.forEach(item => {
+                        results.innerHTML += `<p>  - ${item.name} - ₹${item.price}</p>`;
+                    });
+                    
+                    // Test 4: Add item to cart
+                    if (menu.length > 0) {
+                        const menuItemId = menu[0].id;
+                        results.innerHTML += `<h2>4. Testing Add to Cart (${menu[0].name})...</h2>`;
+                        const addToCartRes = await fetch(`${BACKEND_URL}/cart/items`, {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `Bearer ${loginData.access_token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ menu_item_id: menuItemId, quantity: 1 })
+                        });
+                        
+                        if (!addToCartRes.ok) {
+                            const error = await addToCartRes.json();
+                            results.innerHTML += `<p style="color: red;">Add to cart failed: ${JSON.stringify(error)}</p>`;
+                            return;
+                        }
+                        
+                        const cart = await addToCartRes.json();
+                        results.innerHTML += `<p style="color: green;">✅ Added to cart! Cart now has ${cart.items.length} items</p>`;
+                        results.innerHTML += `<p>Total: ₹${cart.total_price}</p>`;
+                        
+                        // Test 5: Get Cart
+                        results.innerHTML += `<h2>5. Testing Get Cart...</h2>`;
+                        const getCartRes = await fetch(`${BACKEND_URL}/cart/`, {
+                            headers: { 'Authorization': `Bearer ${loginData.access_token}` }
+                        });
+                        
+                        if (!getCartRes.ok) {
+                            results.innerHTML += `<p style="color: red;">Get cart failed: ${getCartRes.status}</p>`;
+                            return;
+                        }
+                        
+                        const cartData = await getCartRes.json();
+                        results.innerHTML += `<p style="color: green;">✅ Cart retrieved successfully:</p>`;
+                        cartData.items.forEach(item => {
+                            results.innerHTML += `<p>  - ${item.menu_item.name} x${item.quantity} = ₹${item.price_at_time_of_order * item.quantity}</p>`;
+                        });
+                    }
+                }
+                
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Test error:', error);
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>

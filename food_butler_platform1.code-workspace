@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "food_butler_platform1",
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.port": 5503
+	}
+}

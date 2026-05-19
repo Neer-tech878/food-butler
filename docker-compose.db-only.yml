@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=food_butler_db
+      - POSTGRES_USER=food_butler_user
+      - POSTGRES_PASSWORD=Jashwanth_2004
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
